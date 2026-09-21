@@ -202,7 +202,7 @@ async function send() {
 
   typing();
 
-  const res = await fetch("http://localhost:3000/chat", {
+  const res = await fetch("https://pynex-ai-1f84.onrender.com/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: msg })
@@ -231,6 +231,7 @@ async function send() {
 function startVoice() {
   const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   rec.lang = "en-US";
+   const res = await fetch("https://pynex-ai-1f84.onrender.com/voice")
 
   rec.onresult = (e) => {
     document.getElementById("msg").value = e.results[0][0].transcript;
@@ -250,7 +251,7 @@ async function sendImage() {
 
   typing();
 
-  const res = await fetch("http://localhost:3000/image-search", {
+  const res = await fetch("https://pynex-ai-1f84.onrender.com/image-search", {
     method: "POST",
     body: form
   });
