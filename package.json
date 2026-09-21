@@ -1,0 +1,21 @@
+{
+  "name": "pynex",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.20.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.1",
+    "express": "^5.2.1",
+    "multer": "^2.4.0"
+  }
+}

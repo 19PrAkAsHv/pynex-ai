@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pynex AI Store</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at top, #1a1a2e, #0f0f0f);
+  color: white;
+}
+
+/* BOOT */
+#bootScreen {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.bootBox {
+  text-align: center;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #7c3aed;
+}
+
+.loadingText {
+  opacity: 0.8;
+  margin: 10px 0;
+}
+
+.bar {
+  width: 220px;
+  height: 6px;
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #2563eb);
+  animation: load 2.5s ease forwards;
+}
+
+@keyframes load {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* CHAT */
+#chat {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.msg {
+  max-width: 70%;
+  padding: 10px 14px;
+  margin: 6px 10px;
+  border-radius: 18px;
+  font-size: 14px;
+}
+
+.user {
+  margin-left: auto;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+.bot {
+  margin-right: auto;
+  background: rgba(255,255,255,0.08);
+}
+
+/* INPUT */
+#inputBox {
+  display: flex;
+  padding: 14px;
+}
+
+input {
+  flex: 1;
+  padding: 12px;
+  background: #1f1f1f;
+  color: white;
+  border: none;
+  border-radius: 10px;
+}
+
+button {
+  margin-left: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* PRODUCT */
+.product-card {
+  margin: 8px 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+</style>
+</head>
+
+<body>
+
+<!-- BOOT -->
+<div id="bootScreen">
+  <div class="bootBox">
+    <div class="logo">🕸️ PYNEX AI</div>
+    <div class="loadingText">Booting AI Engine...</div>
+    <div class="bar"><div class="progress"></div></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header style="padding:15px;text-align:center;">
+  🛍️ Pynex AI Store
+</header>
+
+<!-- CHAT -->
+<div id="chat"></div>
+
+<!-- INPUT -->
+<div id="inputBox">
+  <input id="msg" placeholder="Ask Pynex anything..." />
+  <button onclick="send()">Send</button>
+  <button onclick="startVoice()">🎤</button>
+  <input type="file" id="imgInput" />
+  <button onclick="sendImage()">📷</button>
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+
+/* BOOT */
+window.onload = () => {
+  setTimeout(() => {
+    document.getElementById("bootScreen").style.display = "none";
+    add("🕸️ Hi, I’m Pynex AI!", "bot");
+  }, 2000);
+};
+
+/* MESSAGE */
+function add(text, type) {
+  const div = document.createElement("div");
+  div.className = "msg " + type;
+  div.innerText = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+/* TYPING */
+function typing() {
+  const div = document.createElement("div");
+  div.id = "typing";
+  div.className = "msg bot";
+  div.innerText = "Pynex is thinking...";
+  chat.appendChild(div);
+}
+
+/* REMOVE TYPING */
+function removeTyping() {
+  document.getElementById("typing")?.remove();
+}
+
+/* CHAT */
+async function send() {
+  let msg = document.getElementById("msg").value;
+  if (!msg) return;
+
+  add(msg, "user");
+  document.getElementById("msg").value = "";
+
+  typing();
+
+  const res = await fetch("http://localhost:3000/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: msg })
+  });
+
+  const data = await res.json();
+
+  removeTyping();
+  add(data.reply || "No response", "bot");
+
+  if(Array.isArray(data.products)) {
+    data.products.forEach(p => {
+      const div = document.createElement("div");
+      div.className = "product-card bot";
+      div.innerHTML = `
+        🛒 <b>${p.name}</b><br>
+        💰 ₹${p.price}<br>
+        ⭐ ${p.rating || 4.2}
+      `;
+      chat.appendChild(div);
+    });
+  }
+}
+
+/* VOICE */
+function startVoice() {
+  const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  rec.lang = "en-US";
+
+  rec.onresult = (e) => {
+    document.getElementById("msg").value = e.results[0][0].transcript;
+    send();
+  };
+
+  rec.start();
+}
+
+/* IMAGE */
+async function sendImage() {
+  const file = document.getElementById("imgInput").files[0];
+  if (!file) return;
+
+  const form = new FormData();
+  form.append("image", file);
+
+  typing();
+
+  const res = await fetch("http://localhost:3000/image-search", {
+    method: "POST",
+    body: form
+  });
+
+  const data = await res.json();
+
+  removeTyping();
+  add("🖼️ " + (data.reply || "No result"), "bot");
+}
+
+/* ENTER */
+document.addEventListener("keypress", e => {
+  if (e.key === "Enter") send();
+});
+</script>
+
+</body>
+</html>
