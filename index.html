@@ -2,71 +2,131 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pynex AI Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gen-Z Store</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
+:root {
+  --bg-top: #1a1a2e;
+  --bg-bottom: #0f0f0f;
+  --purple: #7c3aed;
+  --blue: #2563eb;
+  --surface: rgba(255,255,255,0.08);
+  --surface-soft: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.1);
+  --input: #1f1f1f;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
+html, body { height: 100%; }
+
 body {
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at top, #1a1a2e, #0f0f0f);
+  background: radial-gradient(circle at top, var(--bg-top), var(--bg-bottom));
   color: white;
 }
 
 /* BOOT */
 #bootScreen {
   position: fixed;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: black;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  transition: opacity 0.4s ease;
 }
-
-.bootBox {
-  text-align: center;
-}
-
-.logo {
-  font-size: 28px;
-  font-weight: bold;
-  color: #7c3aed;
-}
-
-.loadingText {
-  opacity: 0.8;
-  margin: 10px 0;
-}
-
+#bootScreen.hide { opacity: 0; pointer-events: none; }
+.bootBox { text-align: center; }
+.logo { font-size: 28px; font-weight: 600; color: var(--purple); }
+.loadingText { opacity: 0.8; margin: 10px 0; }
 .bar {
   width: 220px;
   height: 6px;
   background: #222;
   border-radius: 10px;
   overflow: hidden;
+  margin: 0 auto;
 }
-
 .progress {
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #7c3aed, #2563eb);
-  animation: load 2.5s ease forwards;
+  background: linear-gradient(90deg, var(--purple), var(--blue));
+  animation: load 2s ease forwards;
+}
+@keyframes load { to { width: 100%; } }
+
+/* HEADER */
+header {
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
 }
 
-@keyframes load {
-  0% { width: 0%; }
-  100% { width: 100%; }
+/* MASCOT STAGE */
+#stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+#spiderSymbol {
+  display: block;
+  margin-top: 6px;
+  filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.7));
+}
+#mascotWrap {
+  width: 130px;
+  transform-origin: 50% 0;
+  animation: sway 3.4s ease-in-out infinite;
+}
+#mascot { display: block; width: 100%; height: auto; overflow: visible; }
+
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
+}
+
+/* blinking */
+#eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.5s infinite; }
+@keyframes blink {
+  0%, 94%, 100% { transform: scaleY(1); }
+  97%           { transform: scaleY(0.1); }
+}
+
+/* pupils move with mood */
+#pupils { transition: transform 0.3s ease; }
+#mascot[data-mood="thinking"] #pupils  { transform: translate(7px, -7px); }
+#mascot[data-mood="listening"] #pupils { transform: scale(1.25); transform-box: fill-box; transform-origin: center; }
+
+/* mouth */
+#mouth { transform-box: fill-box; transform-origin: center; transform: scaleY(0.35); transition: transform 0.2s; }
+#mascot[data-mood="talking"] #mouth { animation: talk 0.22s ease-in-out infinite alternate; }
+#mascot[data-mood="thinking"] #mouth { transform: scale(0.5); }
+@keyframes talk {
+  from { transform: scaleY(0.25); }
+  to   { transform: scaleY(1.1); }
+}
+
+#status {
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.75;
+  min-height: 16px;
 }
 
 /* CHAT */
@@ -74,58 +134,140 @@ body {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .msg {
-  max-width: 70%;
+  max-width: 75%;
   padding: 10px 14px;
   margin: 6px 10px;
   border-radius: 18px;
   font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.user { margin-left: auto; background: linear-gradient(135deg, var(--blue), var(--purple)); }
+.bot  { margin-right: auto; background: var(--surface); }
+
+.cursor {
+  display: inline-block;
+  width: 7px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: #a78bfa;
+  animation: caret 0.7s steps(1) infinite;
+}
+@keyframes caret { 50% { opacity: 0; } }
+
+/* INSTAGRAM-STYLE BOT ROW */
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 6px 10px;
+}
+.row .msg {
+  margin: 0;
+  min-width: 0;
+  max-width: min(75%, calc(100% - 40px));
+  border-bottom-left-radius: 6px;
+}
+.avatar {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  border: 2px solid rgba(255,255,255,0.15);
+}
+.dots { display: flex; gap: 4px; padding: 14px 16px; }
+.dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+  animation: bounce 1s infinite ease-in-out;
+}
+.dots span:nth-child(2) { animation-delay: 0.15s; }
+.dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30%           { transform: translateY(-4px); opacity: 1; }
 }
 
-.user {
-  margin-left: auto;
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+/* PRODUCT CARDS */
+.product-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  max-width: 75%;
+  margin: 6px 10px 6px 48px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  font-size: 14px;
 }
-
-.bot {
-  margin-right: auto;
-  background: rgba(255,255,255,0.08);
+.product-card img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #222;
 }
+.product-card .info { display: flex; flex-direction: column; gap: 4px; }
+.product-card .name { font-weight: 600; }
+.product-card a.buy { color: #a78bfa; text-decoration: none; font-size: 13px; }
+.product-card a.buy:hover { text-decoration: underline; }
 
 /* INPUT */
 #inputBox {
   display: flex;
+  gap: 8px;
   padding: 14px;
+  border-top: 1px solid var(--border);
 }
-
-input {
+#msg {
   flex: 1;
+  min-width: 0;
   padding: 12px;
-  background: #1f1f1f;
+  background: var(--input);
   color: white;
   border: none;
   border-radius: 10px;
+  font-size: 14px;
 }
-
+#msg:focus-visible, button:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
 button {
-  margin-left: 10px;
   padding: 12px 16px;
-  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  background: linear-gradient(135deg, var(--purple), var(--blue));
   color: white;
   border: none;
   border-radius: 10px;
   cursor: pointer;
+  font-size: 14px;
 }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+#imgInput { display: none; }
 
-/* PRODUCT */
-.product-card {
-  margin: 8px 10px;
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+@media (max-width: 600px) {
+  #mascotWrap { width: 96px; }
+  .msg, .product-card { max-width: 92%; }
+  .product-card { margin-left: 48px; max-width: calc(100% - 58px); }
+  #chat { padding: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #mascotWrap, #eyes, #mascot[data-mood="talking"] #mouth, .dots span { animation: none; }
+  .progress { animation-duration: 0.01s; }
+  #bootScreen { transition: none; }
 }
 </style>
 </head>
@@ -142,129 +284,377 @@ button {
 </div>
 
 <!-- HEADER -->
-<header style="padding:15px;text-align:center;">
-  🛍️ Pynex AI Store
-</header>
+<header>🛍️ Gen-Z Store</header>
+
+<!-- MASCOT -->
+<div id="stage">
+  <!-- spider symbol: the mascot hangs from it -->
+  <svg id="spiderSymbol" viewBox="0 0 60 34" width="46" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spider symbol">
+    <g fill="none" stroke="#a78bfa" stroke-width="2.6" stroke-linecap="round">
+      <path d="M26 13 Q14 3 6 9"/>
+      <path d="M25 17 Q10 11 3 19"/>
+      <path d="M25 21 Q10 21 4 31"/>
+      <path d="M27 26 Q18 30 13 33"/>
+      <path d="M34 13 Q46 3 54 9"/>
+      <path d="M35 17 Q50 11 57 19"/>
+      <path d="M35 21 Q50 21 56 31"/>
+      <path d="M33 26 Q42 30 47 33"/>
+    </g>
+    <ellipse cx="30" cy="23" rx="7" ry="9" fill="#a78bfa"/>
+    <circle cx="30" cy="12" r="5" fill="#a78bfa"/>
+    <circle cx="28" cy="11" r="1.2" fill="#0f0f0f"/>
+    <circle cx="32" cy="11" r="1.2" fill="#0f0f0f"/>
+  </svg>
+  <div id="mascotWrap">
+    <svg id="mascot" data-mood="idle" viewBox="0 0 200 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pynex, the web-slinging shopping mascot">
+      <defs>
+        <linearGradient id="hood" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#8b5cf6"/>
+          <stop offset="1" stop-color="#2563eb"/>
+        </linearGradient>
+        <clipPath id="headClip">
+          <ellipse cx="100" cy="112" rx="60" ry="64"/>
+        </clipPath>
+      </defs>
+
+      <!-- web thread -->
+      <line x1="100" y1="0" x2="100" y2="50" stroke="#e5e7eb" stroke-width="2.5" stroke-linecap="round"/>
+
+      <!-- head -->
+      <ellipse cx="100" cy="112" rx="60" ry="64" fill="url(#hood)" stroke="#0f0f0f" stroke-width="4"/>
+
+      <!-- web pattern on the hood -->
+      <g clip-path="url(#headClip)" stroke="rgba(255,255,255,0.28)" stroke-width="1.4" fill="none">
+        <ellipse cx="100" cy="112" rx="20" ry="21"/>
+        <ellipse cx="100" cy="112" rx="40" ry="42"/>
+        <ellipse cx="100" cy="112" rx="60" ry="64"/>
+        <line x1="100" y1="112" x2="100" y2="40"/>
+        <line x1="100" y1="112" x2="100" y2="190"/>
+        <line x1="100" y1="112" x2="30" y2="112"/>
+        <line x1="100" y1="112" x2="170" y2="112"/>
+        <line x1="100" y1="112" x2="48" y2="58"/>
+        <line x1="100" y1="112" x2="152" y2="58"/>
+        <line x1="100" y1="112" x2="48" y2="168"/>
+        <line x1="100" y1="112" x2="152" y2="168"/>
+      </g>
+
+      <!-- little spider badge on the forehead -->
+      <g transform="translate(100 76)" stroke="#fff" stroke-width="1.6" stroke-linecap="round" fill="#fff">
+        <circle r="4"/>
+        <path d="M-3 -1 L-10 -6 M-3 1 L-11 2 M-3 3 L-9 9 M3 -1 L10 -6 M3 1 L11 2 M3 3 L9 9" fill="none"/>
+      </g>
+
+      <!-- eyes -->
+      <g id="eyes">
+        <ellipse cx="74" cy="112" rx="22" ry="15" transform="rotate(-14 74 112)" fill="#fff" stroke="#0f0f0f" stroke-width="4"/>
+        <ellipse cx="126" cy="112" rx="22" ry="15" transform="rotate(14 126 112)" fill="#fff" stroke="#0f0f0f" stroke-width="4"/>
+        <g id="pupils">
+          <circle cx="78" cy="113" r="6" fill="#111"/>
+          <circle cx="122" cy="113" r="6" fill="#111"/>
+          <circle cx="80" cy="111" r="1.8" fill="#fff"/>
+          <circle cx="124" cy="111" r="1.8" fill="#fff"/>
+        </g>
+      </g>
+
+      <!-- mouth -->
+      <g id="mouth">
+        <ellipse cx="100" cy="156" rx="14" ry="9" fill="#2b0f3f" stroke="#0f0f0f" stroke-width="3"/>
+        <ellipse cx="100" cy="160" rx="7" ry="3.5" fill="#f472b6"/>
+      </g>
+    </svg>
+  </div>
+  <div id="status">Ready</div>
+</div>
 
 <!-- CHAT -->
-<div id="chat"></div>
+<div id="chat" aria-live="polite"></div>
 
 <!-- INPUT -->
 <div id="inputBox">
-  <input id="msg" placeholder="Ask Pynex anything..." />
-  <button onclick="send()">Send</button>
-  <button onclick="startVoice()">🎤</button>
-  <input type="file" id="imgInput" />
-  <button onclick="sendImage()">📷</button>
+  <input id="msg" placeholder="Ask Pynex anything..." autocomplete="off" />
+  <button id="sendBtn" onclick="send()">Send</button>
+  <button onclick="startVoice()" aria-label="Voice input">🎤</button>
+  <input type="file" id="imgInput" accept="image/*" />
+  <button onclick="document.getElementById('imgInput').click()" aria-label="Search by image">📷</button>
 </div>
 
 <script>
-const chat = document.getElementById("chat");
-
-/* BOOT */
-window.onload = () => {
-  setTimeout(() => {
-    document.getElementById("bootScreen").style.display = "none";
-    add("🕸️ Hi, I’m Pynex AI!", "bot");
-  }, 2000);
+/* ====== SETTINGS: change these in one place ====== */
+const API_BASE = "https://pynex-ai-1f84.onrender.com";   // your backend on Render
+const ENDPOINTS = {
+  chat:  API_BASE + "/chat",
+  image: API_BASE + "/image-search"
 };
+const GREETING = "Hey, I'm Pynex! Tell me what you want to buy and your budget, and I'll swing by with the best picks.";
+const VOICE_LANG = "en-IN";
+const TYPE_DELAY_MS = 22;     // time per typing tick
+const TYPE_MAX_MS   = 4000;   // long answers speed up so they never take longer than this
+/* ================================================= */
 
-/* MESSAGE */
+const chat     = document.getElementById("chat");
+const msgBox   = document.getElementById("msg");
+const sendBtn  = document.getElementById("sendBtn");
+const imgInput = document.getElementById("imgInput");
+const mascot   = document.getElementById("mascot");
+const statusEl = document.getElementById("status");
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* MASCOT MOOD: idle | thinking | talking | listening */
+const MOOD_TEXT = {
+  idle: "Ready",
+  thinking: "Thinking...",
+  talking: "Typing...",
+  listening: "Listening..."
+};
+const mascotWrap = document.getElementById("mascotWrap");
+
+function setMood(mood) {
+  mascot.dataset.mood = mood;
+  mascotWrap.dataset.mood = mood;
+  statusEl.innerText = MOOD_TEXT[mood] || "";
+}
+
+/* BOOT: hide after 2s, then greet */
+setTimeout(() => {
+  const boot = document.getElementById("bootScreen");
+  boot.classList.add("hide");
+  setTimeout(() => boot.remove(), 500);
+  botSay(GREETING);
+}, 2000);
+
+/* USER MESSAGE (innerText = safe, no HTML injection) */
 function add(text, type) {
   const div = document.createElement("div");
   div.className = "msg " + type;
   div.innerText = text;
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
+  return div;
 }
 
-/* TYPING */
-function typing() {
-  const div = document.createElement("div");
-  div.id = "typing";
-  div.className = "msg bot";
-  div.innerText = "Pynex is thinking...";
-  chat.appendChild(div);
+/* TYPEWRITER: click the bubble to skip to the full text */
+async function typeOut(el, text) {
+  if (reduceMotion) { el.innerText = text; return; }
+
+  const chars = Array.from(text);              // keeps emoji intact
+  const node = document.createTextNode("");
+  const cursor = document.createElement("span");
+  cursor.className = "cursor";
+  el.append(node, cursor);
+
+  let skip = false;
+  el.onclick = () => { skip = true; };
+
+  const perTick = Math.max(1, Math.ceil(chars.length / (TYPE_MAX_MS / TYPE_DELAY_MS)));
+  for (let i = 0; i < chars.length && !skip; i += perTick) {
+    node.data = chars.slice(0, i + perTick).join("");
+    chat.scrollTop = chat.scrollHeight;
+    await sleep(TYPE_DELAY_MS);
+  }
+
+  node.data = text;
+  cursor.remove();
+  el.onclick = null;
+  chat.scrollTop = chat.scrollHeight;
 }
 
-/* REMOVE TYPING */
-function removeTyping() {
-  document.getElementById("typing")?.remove();
+/* BOT MESSAGE: mascot talks while the text types out */
+function makeBotRow() {
+  const row = document.createElement("div");
+  row.className = "row";
+
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.innerText = "🕸️";
+  avatar.setAttribute("aria-hidden", "true");
+
+  row.appendChild(avatar);
+  chat.appendChild(row);
+  return row;
+}
+
+async function botSay(text) {
+  hideDots();
+
+  const row = makeBotRow();
+  const bubble = document.createElement("div");
+  bubble.className = "msg bot";
+  row.appendChild(bubble);
+
+  setMood("talking");
+  await typeOut(bubble, text);
+  setMood("idle");
+}
+
+/* Instagram-style "typing..." dots while waiting for the server */
+function showDots() {
+  hideDots();
+  const row = makeBotRow();
+  row.id = "dotsRow";
+  const bubble = document.createElement("div");
+  bubble.className = "msg bot dots";
+  bubble.innerHTML = "<span></span><span></span><span></span>";
+  row.appendChild(bubble);
+  chat.scrollTop = chat.scrollHeight;
+}
+function hideDots() {
+  document.getElementById("dotsRow")?.remove();
+}
+
+function thinking() {
+  setMood("thinking");
+  showDots();
+}
+
+/* Only allow http(s) links on product buttons */
+function safeUrl(u) {
+  try {
+    const url = new URL(u);
+    return (url.protocol === "https:" || url.protocol === "http:") ? url.href : null;
+  } catch { return null; }
+}
+
+function renderProducts(products) {
+  products.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "product-card";
+
+    const imgUrl = safeUrl(p.image);
+    if (imgUrl) {
+      const img = document.createElement("img");
+      img.src = imgUrl;
+      img.alt = p.name || "Product";
+      img.loading = "lazy";
+      card.appendChild(img);
+    }
+
+    const info = document.createElement("div");
+    info.className = "info";
+
+    const name = document.createElement("div");
+    name.className = "name";
+    name.innerText = "🛒 " + (p.name || "Unnamed product");
+    info.appendChild(name);
+
+    if (p.price !== undefined && p.price !== null) {
+      const price = document.createElement("div");
+      price.innerText = "💰 ₹" + p.price;
+      info.appendChild(price);
+    }
+
+    if (p.rating) {
+      const rating = document.createElement("div");
+      rating.innerText = "⭐ " + p.rating;
+      info.appendChild(rating);
+    }
+
+    const link = safeUrl(p.link || p.url);
+    if (link) {
+      const a = document.createElement("a");
+      a.className = "buy";
+      a.href = link;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer sponsored";
+      a.innerText = "View product";
+      info.appendChild(a);
+    }
+
+    card.appendChild(info);
+    chat.appendChild(card);
+  });
+  chat.scrollTop = chat.scrollHeight;
 }
 
 /* CHAT */
 async function send() {
-  let msg = document.getElementById("msg").value;
-  if (!msg) return;
+  const text = msgBox.value.trim();
+  if (!text || sendBtn.disabled) return;
 
-  add(msg, "user");
-  document.getElementById("msg").value = "";
+  add(text, "user");
+  msgBox.value = "";
+  sendBtn.disabled = true;
+  thinking();
 
-  typing();
-
-  const res = await fetch("https://pynex-ai-1f84.onrender.com/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: msg })
-  });
-
-  const data = await res.json();
-
-  removeTyping();
-  add(data.reply || "No response", "bot");
-
-  if(Array.isArray(data.products)) {
-    data.products.forEach(p => {
-      const div = document.createElement("div");
-      div.className = "product-card bot";
-      div.innerHTML = `
-        🛒 <b>${p.name}</b><br>
-        💰 ₹${p.price}<br>
-        ⭐ ${p.rating || 4.2}
-      `;
-      chat.appendChild(div);
+  try {
+    const res = await fetch(ENDPOINTS.chat, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
     });
+    if (!res.ok) throw new Error("Server returned " + res.status);
+
+    const data = await res.json();
+    await botSay(data.reply || "No response");
+    if (Array.isArray(data.products)) renderProducts(data.products);
+  } catch (err) {
+    console.error(err);
+    await botSay("I couldn't reach the server. It may be waking up, so try again in a few seconds.");
+  } finally {
+    sendBtn.disabled = false;
+    msgBox.focus();
   }
 }
 
-/* VOICE */
+/* VOICE: fills the box, then sends. No server call needed. */
 function startVoice() {
-  const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  rec.lang = "en-US";
-   const res = await fetch("https://pynex-ai-1f84.onrender.com/voice")
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    botSay("Voice input isn't supported in this browser. Try Chrome.");
+    return;
+  }
+  const rec = new SR();
+  rec.lang = VOICE_LANG;
 
+  setMood("listening");
   rec.onresult = (e) => {
-    document.getElementById("msg").value = e.results[0][0].transcript;
+    msgBox.value = e.results[0][0].transcript;
     send();
   };
+  rec.onerror = () => {
+    setMood("idle");
+    botSay("I couldn't hear that. Check your mic permission and try again.");
+  };
+  rec.onend = () => { if (mascot.dataset.mood === "listening") setMood("idle"); };
 
   rec.start();
 }
 
-/* IMAGE */
+/* IMAGE: uploads as soon as a photo is picked */
+imgInput.addEventListener("change", sendImage);
+
 async function sendImage() {
-  const file = document.getElementById("imgInput").files[0];
+  const file = imgInput.files[0];
   if (!file) return;
+
+  add("🖼️ Searching with your photo...", "user");
 
   const form = new FormData();
   form.append("image", file);
+  thinking();
 
-  typing();
+  try {
+    const res = await fetch(ENDPOINTS.image, { method: "POST", body: form });
+    if (!res.ok) throw new Error("Server returned " + res.status);
 
-  const res = await fetch("https://pynex-ai-1f84.onrender.com/image-search", {
-    method: "POST",
-    body: form
-  });
-
-  const data = await res.json();
-
-  removeTyping();
-  add("🖼️ " + (data.reply || "No result"), "bot");
+    const data = await res.json();
+    await botSay(data.reply || "No result");
+    if (Array.isArray(data.products)) renderProducts(data.products);
+  } catch (err) {
+    console.error(err);
+    await botSay("Image search failed. Please try again.");
+  } finally {
+    imgInput.value = "";
+  }
 }
 
-/* ENTER */
-document.addEventListener("keypress", e => {
-  if (e.key === "Enter") send();
+/* ENTER key, only while typing in the message box */
+msgBox.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    send();
+  }
 });
 </script>
 
